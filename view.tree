@@ -1,12 +1,14 @@
 $habr_notes $mol_page
-	- через синк клиент мы обмениваемся данными в сети
+	plugins /
+		- включаем поддержку смены тем
+		<= Theme $mol_theme_auto
 	yard $hyoo_sync_client
 	tools /
-		- через модуль онлайна мы подключаемся к пирам и синхронизируемся
 		<= Online $hyoo_sync_online
 			yard <= yard
+		- добавляем кнопку-переключалку
+		<= Lighter $mol_lights_toggle
 	body /
 		<= Input $mol_textarea
 			value?val <=> text?val \
-			- нет прав - не даём редачить
 			enabled <= i_have_can_mod false
