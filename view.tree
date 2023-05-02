@@ -1,0 +1,5 @@
+$habr_notes $mol_page
+	body /
+		<= Input $mol_textarea
+			- переопределяем наше свойство value
+			value?val <=> text?val \
