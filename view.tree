@@ -1,5 +1,12 @@
 $habr_notes $mol_page
+	- через синк клиент мы обмениваемся данными в сети
+	yard $hyoo_sync_client
+	tools /
+		- через модуль онлайна мы подключаемся к пирам и синхронизируемся
+		<= Online $hyoo_sync_online
+			yard <= yard
 	body /
 		<= Input $mol_textarea
-			- переопределяем наше свойство value
 			value?val <=> text?val \
+			- нет прав - не даём редачить
+			enabled <= i_have_can_mod false
