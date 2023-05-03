@@ -9424,6 +9424,9 @@ var $;
 var $;
 (function ($) {
     class $habr_notes extends $mol_page {
+	title() {
+	    return "Кросевошные заметки со сменой тем!";// да, я просто взял и отредачил продовский бандл потому что так быстрее))0
+	}
         plugins() {
             return [
                 this.Theme()
