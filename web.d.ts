@@ -107,6 +107,7 @@ declare namespace $ {
 
 declare namespace $ {
     interface $mol_wire_sub extends $mol_wire_pub {
+        temp: boolean;
         track_on(): $mol_wire_sub | null;
         track_next(pub?: $mol_wire_pub): $mol_wire_pub | null;
         pub_off(pub_pos: number): void;
@@ -118,6 +119,7 @@ declare namespace $ {
 }
 
 declare namespace $ {
+    let $mol_wire_auto_sub: $mol_wire_sub | null;
     function $mol_wire_auto(next?: $mol_wire_sub | null): $mol_wire_sub | null;
     const $mol_wire_affected: (number | $mol_wire_sub)[];
 }
@@ -154,6 +156,7 @@ declare namespace $ {
     class $mol_wire_pub_sub extends $mol_wire_pub implements $mol_wire_sub {
         protected pub_from: number;
         protected cursor: $mol_wire_cursor;
+        get temp(): boolean;
         get pub_list(): $mol_wire_pub[];
         track_on(): $mol_wire_sub | null;
         promote(): void;
@@ -236,7 +239,8 @@ declare namespace $ {
 
 declare namespace $ {
     class $mol_wire_task<Host, Args extends readonly unknown[], Result> extends $mol_wire_fiber<Host, Args, Result> {
-        static getter<Host, Args extends readonly unknown[], Result>(task: (this: Host, ...args: Args) => Result): (host: Host, args: Args) => $mol_wire_task<Host, [...Args], Result>;
+        static getter<Host, Args extends readonly unknown[], Result>(task: (this: Host, ...args: Args) => Result): (host: Host, args: Args) => $mol_wire_task<Host, Args, Result>;
+        get temp(): boolean;
         complete(): void;
         put(next: Result | Error | Promise<Result | Error>): Result | Error | Promise<Result | Error>;
     }
@@ -455,34 +459,34 @@ declare namespace $ {
         readonly literal: Literal;
         constructor(value: number, literal: Literal);
         postfix(): Literal;
-        static per(value: number): $mol_style_unit<"%">;
-        static px(value: number): $mol_style_unit<"px">;
-        static mm(value: number): $mol_style_unit<"mm">;
-        static cm(value: number): $mol_style_unit<"cm">;
-        static Q(value: number): $mol_style_unit<"Q">;
-        static in(value: number): $mol_style_unit<"in">;
-        static pc(value: number): $mol_style_unit<"pc">;
-        static pt(value: number): $mol_style_unit<"pt">;
-        static cap(value: number): $mol_style_unit<"cap">;
-        static ch(value: number): $mol_style_unit<"ch">;
-        static em(value: number): $mol_style_unit<"em">;
-        static rem(value: number): $mol_style_unit<"rem">;
-        static ex(value: number): $mol_style_unit<"ex">;
-        static ic(value: number): $mol_style_unit<"ic">;
-        static lh(value: number): $mol_style_unit<"lh">;
-        static rlh(value: number): $mol_style_unit<"rlh">;
-        static vh(value: number): $mol_style_unit<"vh">;
-        static vw(value: number): $mol_style_unit<"vw">;
-        static vi(value: number): $mol_style_unit<"vi">;
-        static vb(value: number): $mol_style_unit<"vb">;
-        static vmin(value: number): $mol_style_unit<"vmin">;
-        static vmax(value: number): $mol_style_unit<"vmax">;
-        static deg(value: number): $mol_style_unit<"deg">;
-        static rad(value: number): $mol_style_unit<"rad">;
-        static grad(value: number): $mol_style_unit<"grad">;
-        static turn(value: number): $mol_style_unit<"turn">;
-        static s(value: number): $mol_style_unit<"s">;
-        static ms(value: number): $mol_style_unit<"ms">;
+        static per(value: number): `${number}%`;
+        static px(value: number): `${number}px`;
+        static mm(value: number): `${number}mm`;
+        static cm(value: number): `${number}cm`;
+        static Q(value: number): `${number}Q`;
+        static in(value: number): `${number}in`;
+        static pc(value: number): `${number}pc`;
+        static pt(value: number): `${number}pt`;
+        static cap(value: number): `${number}cap`;
+        static ch(value: number): `${number}ch`;
+        static em(value: number): `${number}em`;
+        static rem(value: number): `${number}rem`;
+        static ex(value: number): `${number}ex`;
+        static ic(value: number): `${number}ic`;
+        static lh(value: number): `${number}lh`;
+        static rlh(value: number): `${number}rlh`;
+        static vh(value: number): `${number}vh`;
+        static vw(value: number): `${number}vw`;
+        static vi(value: number): `${number}vi`;
+        static vb(value: number): `${number}vb`;
+        static vmin(value: number): `${number}vmin`;
+        static vmax(value: number): `${number}vmax`;
+        static deg(value: number): `${number}deg`;
+        static rad(value: number): `${number}rad`;
+        static grad(value: number): `${number}grad`;
+        static turn(value: number): `${number}turn`;
+        static s(value: number): `${number}s`;
+        static ms(value: number): `${number}ms`;
     }
 }
 
@@ -496,7 +500,7 @@ declare namespace $ {
         static calc<Value>(value: Value): $mol_style_func<"calc", Value>;
         static vary<Name extends string>(name: Name): $mol_style_func<"var", Name>;
         static url<Href extends string>(href: Href): $mol_style_func<"url", string>;
-        static hsla(hue: number, saturation: number, lightness: number, alpha: number): $mol_style_func<"hsla", (number | $mol_style_unit<"%">)[]>;
+        static hsla(hue: number, saturation: number, lightness: number, alpha: number): $mol_style_func<"hsla", (number | `${number}%`)[]>;
         static clamp(min: $mol_style_unit<any>, mid: $mol_style_unit<any>, max: $mol_style_unit<any>): $mol_style_func<"clamp", $mol_style_unit<any>[]>;
         static rgba(red: number, green: number, blue: number, alpha: number): $mol_style_func<"rgba", number[]>;
         static scale(zoom: number): $mol_style_func<"scale", number[]>;
@@ -657,7 +661,7 @@ declare namespace $ {
     export type $mol_style_properties = Partial<$mol_type_override<CSSStyleDeclaration, Overrides>>;
     type Common = 'inherit' | 'initial' | 'unset' | 'revert' | 'revert-layer' | $mol_style_func<'var'>;
     type Color = 'aliceblue' | 'antiquewhite' | 'aqua' | 'aquamarine' | 'azure' | 'beige' | 'bisque' | 'black' | 'blanchedalmond' | 'blue' | 'blueviolet' | 'brown' | 'burlywood' | 'cadetblue' | 'chartreuse' | 'chocolate' | 'coral' | 'cornflowerblue' | 'cornsilk' | 'crimson' | 'cyan' | 'darkblue' | 'darkcyan' | 'darkgoldenrod' | 'darkgray' | 'darkgreen' | 'darkgrey' | 'darkkhaki' | 'darkmagenta' | 'darkolivegreen' | 'darkorange' | 'darkorchid' | 'darkred' | 'darksalmon' | 'darkseagreen' | 'darkslateblue' | 'darkslategrey' | 'darkturquoise' | 'darkviolet' | 'deeppink' | 'deepskyblue' | 'dimgray' | 'dimgrey' | 'dodgerblue' | 'firebrick' | 'floralwhite' | 'forestgreen' | 'fuchsia' | 'gainsboro' | 'ghostwhite' | 'gold' | 'goldenrod' | 'gray' | 'green' | 'greenyellow' | 'grey' | 'honeydew' | 'hotpink' | 'indianred' | 'indigo' | 'ivory' | 'khaki' | 'lavender' | 'lavenderblush' | 'lawngreen' | 'lemonchiffon' | 'lightblue' | 'lightcoral' | 'lightcyan' | 'lightgoldenrodyellow' | 'lightgray' | 'lightgreen' | 'lightgrey' | 'lightpink' | 'lightsalmon' | 'lightseagreen' | 'lightskyblue' | 'lightslategray' | 'lightslategrey' | 'lightsteelblue' | 'lightyellow' | 'lime' | 'limegreen' | 'linen' | 'magenta' | 'maroon' | 'mediumaquamarine' | 'mediumblue' | 'mediumorchid' | 'mediumpurple' | 'mediumseagreen' | 'mediumslateblue' | 'mediumspringgreen' | 'mediumturquoise' | 'mediumvioletred' | 'midnightblue' | 'mintcream' | 'mistyrose' | 'moccasin' | 'navajowhite' | 'navy' | 'oldlace' | 'olive' | 'olivedrab' | 'orange' | 'orangered' | 'orchid' | 'palegoldenrod' | 'palegreen' | 'paleturquoise' | 'palevioletred' | 'papayawhip' | 'peachpuff' | 'peru' | 'pink' | 'plum' | 'powderblue' | 'purple' | 'rebeccapurple' | 'red' | 'rosybrown' | 'royalblue' | 'saddlebrown' | 'salmon' | 'sandybrown' | 'seagreen' | 'seashell' | 'sienna' | 'silver' | 'skyblue' | 'slateblue' | 'slategray' | 'slategrey' | 'snow' | 'springgreen' | 'steelblue' | 'tan' | 'teal' | 'thistle' | 'tomato' | 'turquoise' | 'violet' | 'wheat' | 'white' | 'whitesmoke' | 'yellow' | 'yellowgreen' | 'transparent' | 'currentcolor' | $mol_style_func<'hsla' | 'rgba' | 'var'> | `#${string}`;
-    type Length = 0 | $mol_style_unit<$mol_style_unit_length> | $mol_style_func<'calc' | 'var' | 'clamp'>;
+    type Length = 0 | `${number}${$mol_style_unit_length}` | $mol_style_func<'calc' | 'var' | 'clamp'>;
     type Size = 'auto' | 'max-content' | 'min-content' | 'fit-content' | Length | Common;
     type Directions<Value> = Value | readonly [Value, Value] | {
         top?: Value;
@@ -749,6 +753,7 @@ declare namespace $ {
         };
         zIndex: number | Common;
         opacity: number | Common;
+        aspectRatio: number | Common;
     }
     export {};
 }
@@ -849,6 +854,179 @@ declare namespace $.$$ {
 
 declare let $hyoo_sync_revision: string;
 
+declare var $node: any;
+
+declare namespace $ {
+    function $mol_charset_encode(value: string): Uint8Array;
+}
+
+declare namespace $ {
+    type $mol_int62_string = `${string}_${string}`;
+    function $mol_int62_string_ensure(str: unknown): `${string}_${string}` | null;
+    type $mol_int62_pair = {
+        readonly lo: number;
+        readonly hi: number;
+    };
+    const $mol_int62_max: number;
+    const $mol_int62_min: number;
+    const $mol_int62_range: number;
+    function $mol_int62_to_string({ lo, hi }: $mol_int62_pair): `${string}_${string}`;
+    function $mol_int62_from_string(str: string): null | $mol_int62_pair;
+    function $mol_int62_compare(left_lo: number, left_hi: number, right_lo: number, right_hi: number): number;
+    function $mol_int62_inc(lo: number, hi: number, max?: number): $mol_int62_pair;
+    function $mol_int62_random(): $mol_int62_pair;
+    function $mol_int62_hash_string(str: string): `${string}_${string}`;
+    function $mol_int62_hash_buffer(buf: Uint8Array, seed?: {
+        lo: number;
+        hi: number;
+    }): $mol_int62_pair;
+}
+
+declare namespace $ {
+    type $mol_data_value<Input = any, Output = any> = (val: Input) => Output;
+}
+
+declare namespace $ {
+    function $mol_data_setup<Value extends $mol_data_value, Config = never>(value: Value, config: Config): Value & {
+        config: Config;
+        Value: ReturnType<Value>;
+    };
+}
+
+declare namespace $ {
+    function $mol_diff_path<Item>(...paths: Item[][]): {
+        prefix: Item[];
+        suffix: Item[][];
+    };
+}
+
+declare namespace $ {
+    class $mol_error_mix extends Error {
+        errors: Error[];
+        constructor(message: string, ...errors: Error[]);
+        toJSON(): string;
+    }
+}
+
+declare namespace $ {
+    class $mol_data_error extends $mol_error_mix {
+    }
+}
+
+declare namespace $ {
+    function $mol_data_enum<Dict extends Record<number | string, number | string>>(name: string, dict: Dict): ((value: Dict[keyof Dict]) => Dict[keyof Dict]) & {
+        config: {
+            name: string;
+            dict: Dict;
+        };
+        Value: Dict[keyof Dict];
+    };
+}
+
+declare namespace $ {
+    var $mol_crypto_native: Crypto;
+}
+
+declare namespace $ {
+    function $mol_crypto_auditor_pair(this: $): Promise<{
+        public: $mol_crypto_auditor_public;
+        private: $mol_crypto_auditor_private;
+    }>;
+    class $mol_crypto_auditor_public extends Object {
+        readonly native: CryptoKey & {
+            type: 'public';
+        };
+        static size: number;
+        constructor(native: CryptoKey & {
+            type: 'public';
+        });
+        static from(serial: string): Promise<$mol_crypto_auditor_public>;
+        serial(): Promise<string>;
+        verify(data: BufferSource, sign: BufferSource): Promise<boolean>;
+    }
+    class $mol_crypto_auditor_private extends Object {
+        readonly native: CryptoKey & {
+            type: 'private';
+        };
+        static size: number;
+        constructor(native: CryptoKey & {
+            type: 'private';
+        });
+        static from(serial: string): Promise<$mol_crypto_auditor_private>;
+        serial(): Promise<string>;
+        sign(data: BufferSource): Promise<ArrayBuffer>;
+        public(): Promise<$mol_crypto_auditor_public>;
+    }
+    const $mol_crypto_auditor_sign_size = 64;
+    function $mol_crypto_auditor_private_to_public(serial: string): string;
+}
+
+declare namespace $ {
+    enum $hyoo_crowd_peer_level {
+        get = 0,
+        add = 1,
+        mod = 2,
+        law = 3
+    }
+    class $hyoo_crowd_peer extends Object {
+        readonly key_public: $mol_crypto_auditor_public;
+        readonly key_public_serial: string;
+        readonly key_private: $mol_crypto_auditor_private;
+        readonly key_private_serial: string;
+        id: $mol_int62_string;
+        constructor(key_public: $mol_crypto_auditor_public, key_public_serial: string, key_private: $mol_crypto_auditor_private, key_private_serial: string);
+        static generate(): Promise<$hyoo_crowd_peer>;
+        static restore(serial: string): Promise<$hyoo_crowd_peer>;
+    }
+}
+
+declare namespace $ {
+    type $mol_charset_encoding = 'utf8' | 'utf-16le' | 'utf-16be' | 'ibm866' | 'iso-8859-2' | 'iso-8859-3' | 'iso-8859-4' | 'iso-8859-5' | 'iso-8859-6' | 'iso-8859-7' | 'iso-8859-8' | 'iso-8859-8i' | 'iso-8859-10' | 'iso-8859-13' | 'iso-8859-14' | 'iso-8859-15' | 'iso-8859-16' | 'koi8-r' | 'koi8-u' | 'koi8-r' | 'macintosh' | 'windows-874' | 'windows-1250' | 'windows-1251' | 'windows-1252' | 'windows-1253' | 'windows-1254' | 'windows-1255' | 'windows-1256' | 'windows-1257' | 'windows-1258' | 'x-mac-cyrillic' | 'gbk' | 'gb18030' | 'hz-gb-2312' | 'big5' | 'euc-jp' | 'iso-2022-jp' | 'shift-jis' | 'euc-kr' | 'iso-2022-kr';
+}
+
+declare namespace $ {
+    function $mol_charset_decode(buffer: BufferSource, encoding?: $mol_charset_encoding): string;
+}
+
+declare namespace $ {
+    type $hyoo_crowd_unit_id = `${$mol_int62_string}!${$mol_int62_string}`;
+    enum $hyoo_crowd_unit_kind {
+        grab = 0,
+        join = 1,
+        give = 2,
+        data = 3
+    }
+    enum $hyoo_crowd_unit_group {
+        auth = 0,
+        data = 1
+    }
+    class $hyoo_crowd_unit extends Object {
+        readonly land: $mol_int62_string;
+        readonly auth: $mol_int62_string;
+        readonly head: $mol_int62_string;
+        readonly self: $mol_int62_string;
+        readonly next: $mol_int62_string;
+        readonly prev: $mol_int62_string;
+        readonly time: number;
+        readonly data: unknown;
+        bin: $hyoo_crowd_unit_bin | null;
+        constructor(land: $mol_int62_string, auth: $mol_int62_string, head: $mol_int62_string, self: $mol_int62_string, next: $mol_int62_string, prev: $mol_int62_string, time: number, data: unknown, bin: $hyoo_crowd_unit_bin | null);
+        kind(): $hyoo_crowd_unit_kind;
+        group(): $hyoo_crowd_unit_group;
+        level(): $hyoo_crowd_peer_level;
+        [Symbol.toPrimitive](): string;
+    }
+    class $hyoo_crowd_unit_bin extends DataView {
+        static from_buffer(buffer: Int16Array): $hyoo_crowd_unit_bin;
+        static from_unit(unit: $hyoo_crowd_unit): $hyoo_crowd_unit_bin;
+        sign(next?: Uint8Array): Uint8Array;
+        size(): number;
+        sens(): Uint8Array;
+        unit(): $hyoo_crowd_unit;
+    }
+    function $hyoo_crowd_unit_compare(left: $hyoo_crowd_unit, right: $hyoo_crowd_unit): number;
+}
+
 declare namespace $ {
     function $mol_wire_sync<Host extends object>(obj: Host): (Host extends (...args: infer Args) => infer Res ? Res extends Promise<infer Res2> ? (...args: Args) => Res2 : Host : {}) & { [key in keyof Host]: Host[key] extends (...args: infer Args_1) => Promise<infer Res_1> ? (...args: Args_1) => Res_1 : Host[key]; };
 }
@@ -912,181 +1090,8 @@ declare namespace $ {
 declare namespace $ {
 }
 
-declare var $node: any;
-
-declare namespace $ {
-    function $mol_charset_encode(value: string): Uint8Array;
-}
-
-declare namespace $ {
-    type $mol_int62_string = `${string}_${string}`;
-    function $mol_int62_string_ensure(str: unknown): `${string}_${string}` | null;
-    type $mol_int62_pair = {
-        readonly lo: number;
-        readonly hi: number;
-    };
-    const $mol_int62_max: number;
-    const $mol_int62_min: number;
-    const $mol_int62_range: number;
-    function $mol_int62_to_string({ lo, hi }: $mol_int62_pair): `${string}_${string}`;
-    function $mol_int62_from_string(str: string): null | $mol_int62_pair;
-    function $mol_int62_compare(left_lo: number, left_hi: number, right_lo: number, right_hi: number): number;
-    function $mol_int62_inc(lo: number, hi: number, max?: number): $mol_int62_pair;
-    function $mol_int62_random(): $mol_int62_pair;
-    function $mol_int62_hash_string(str: string): `${string}_${string}`;
-    function $mol_int62_hash_buffer(buf: Uint8Array, seed?: {
-        lo: number;
-        hi: number;
-    }): $mol_int62_pair;
-}
-
-declare namespace $ {
-    var $mol_crypto_native: Crypto;
-}
-
-declare namespace $ {
-    function $mol_crypto_auditor_pair(this: $): Promise<{
-        public: $mol_crypto_auditor_public;
-        private: $mol_crypto_auditor_private;
-    }>;
-    class $mol_crypto_auditor_public extends Object {
-        readonly native: CryptoKey & {
-            type: 'public';
-        };
-        static size: number;
-        constructor(native: CryptoKey & {
-            type: 'public';
-        });
-        static from(serial: string): Promise<$mol_crypto_auditor_public>;
-        serial(): Promise<string>;
-        verify(data: BufferSource, sign: BufferSource): Promise<boolean>;
-    }
-    class $mol_crypto_auditor_private extends Object {
-        readonly native: CryptoKey & {
-            type: 'private';
-        };
-        static size: number;
-        constructor(native: CryptoKey & {
-            type: 'private';
-        });
-        static from(serial: string): Promise<$mol_crypto_auditor_private>;
-        serial(): Promise<string>;
-        sign(data: BufferSource): Promise<ArrayBuffer>;
-        public(): Promise<$mol_crypto_auditor_public>;
-    }
-    const $mol_crypto_auditor_sign_size = 64;
-    function $mol_crypto_auditor_private_to_public(serial: string): string;
-}
-
-declare namespace $ {
-    enum $hyoo_crowd_peer_level {
-        get = 0,
-        add = 1,
-        mod = 2,
-        law = 3
-    }
-    class $hyoo_crowd_peer extends Object {
-        readonly key_public: $mol_crypto_auditor_public;
-        readonly key_public_serial: string;
-        readonly key_private: $mol_crypto_auditor_private;
-        readonly key_private_serial: string;
-        id: $mol_int62_string;
-        constructor(key_public: $mol_crypto_auditor_public, key_public_serial: string, key_private: $mol_crypto_auditor_private, key_private_serial: string);
-        static generate(): Promise<$hyoo_crowd_peer>;
-        static restore(serial: string): Promise<$hyoo_crowd_peer>;
-    }
-}
-
 declare namespace $ {
     function $hyoo_sync_peer(path: string): Promise<$hyoo_crowd_peer>;
-}
-
-declare namespace $ {
-    type $mol_data_value<Input = any, Output = any> = (val: Input) => Output;
-}
-
-declare namespace $ {
-    function $mol_data_setup<Value extends $mol_data_value, Config = never>(value: Value, config: Config): Value & {
-        config: Config;
-        Value: ReturnType<Value>;
-    };
-}
-
-declare namespace $ {
-    function $mol_diff_path<Item>(...paths: Item[][]): {
-        prefix: Item[];
-        suffix: Item[][];
-    };
-}
-
-declare namespace $ {
-    class $mol_error_mix extends Error {
-        errors: Error[];
-        constructor(message: string, ...errors: Error[]);
-        toJSON(): string;
-    }
-}
-
-declare namespace $ {
-    class $mol_data_error extends $mol_error_mix {
-    }
-}
-
-declare namespace $ {
-    function $mol_data_enum<Dict extends Record<number | string, number | string>>(name: string, dict: Dict): ((value: Dict[keyof Dict]) => Dict[keyof Dict]) & {
-        config: {
-            name: string;
-            dict: Dict;
-        };
-        Value: Dict[keyof Dict];
-    };
-}
-
-declare namespace $ {
-    type $mol_charset_encoding = 'utf8' | 'utf-16le' | 'utf-16be' | 'ibm866' | 'iso-8859-2' | 'iso-8859-3' | 'iso-8859-4' | 'iso-8859-5' | 'iso-8859-6' | 'iso-8859-7' | 'iso-8859-8' | 'iso-8859-8i' | 'iso-8859-10' | 'iso-8859-13' | 'iso-8859-14' | 'iso-8859-15' | 'iso-8859-16' | 'koi8-r' | 'koi8-u' | 'koi8-r' | 'macintosh' | 'windows-874' | 'windows-1250' | 'windows-1251' | 'windows-1252' | 'windows-1253' | 'windows-1254' | 'windows-1255' | 'windows-1256' | 'windows-1257' | 'windows-1258' | 'x-mac-cyrillic' | 'gbk' | 'gb18030' | 'hz-gb-2312' | 'big5' | 'euc-jp' | 'iso-2022-jp' | 'shift-jis' | 'euc-kr' | 'iso-2022-kr';
-}
-
-declare namespace $ {
-    function $mol_charset_decode(buffer: BufferSource, encoding?: $mol_charset_encoding): string;
-}
-
-declare namespace $ {
-    type $hyoo_crowd_unit_id = `${$mol_int62_string}!${$mol_int62_string}`;
-    enum $hyoo_crowd_unit_kind {
-        grab = 0,
-        join = 1,
-        give = 2,
-        data = 3
-    }
-    enum $hyoo_crowd_unit_group {
-        auth = 0,
-        data = 1
-    }
-    class $hyoo_crowd_unit extends Object {
-        readonly land: $mol_int62_string;
-        readonly auth: $mol_int62_string;
-        readonly head: $mol_int62_string;
-        readonly self: $mol_int62_string;
-        readonly next: $mol_int62_string;
-        readonly prev: $mol_int62_string;
-        readonly time: number;
-        readonly data: unknown;
-        bin: $hyoo_crowd_unit_bin | null;
-        constructor(land: $mol_int62_string, auth: $mol_int62_string, head: $mol_int62_string, self: $mol_int62_string, next: $mol_int62_string, prev: $mol_int62_string, time: number, data: unknown, bin: $hyoo_crowd_unit_bin | null);
-        kind(): $hyoo_crowd_unit_kind;
-        group(): $hyoo_crowd_unit_group;
-        level(): $hyoo_crowd_peer_level;
-        [Symbol.toPrimitive](): string;
-    }
-    class $hyoo_crowd_unit_bin extends DataView {
-        static from_buffer(buffer: Int16Array): $hyoo_crowd_unit_bin;
-        static from_unit(unit: $hyoo_crowd_unit): $hyoo_crowd_unit_bin;
-        sign(next?: Uint8Array): Uint8Array;
-        size(): number;
-        sens(): Uint8Array;
-        unit(): $hyoo_crowd_unit;
-    }
-    function $hyoo_crowd_unit_compare(left: $hyoo_crowd_unit, right: $hyoo_crowd_unit): number;
 }
 
 declare namespace $ {
@@ -1111,8 +1116,9 @@ declare namespace $ {
         tick(peer: $mol_int62_string): number;
     }
     class $hyoo_crowd_clock_bin extends DataView {
-        static from(land_id: $mol_int62_string, clocks: readonly [$hyoo_crowd_clock, $hyoo_crowd_clock]): $hyoo_crowd_clock_bin;
+        static from(land_id: $mol_int62_string, clocks: readonly [$hyoo_crowd_clock, $hyoo_crowd_clock], count: number): $hyoo_crowd_clock_bin;
         land(): `${string}_${string}`;
+        count(): number;
     }
 }
 
@@ -1339,6 +1345,7 @@ declare namespace $ {
 
 declare namespace $ {
     class $hyoo_sync_yard<Line> extends $mol_object2 {
+        db_unit_persisted: WeakSet<$hyoo_crowd_unit>;
         log_pack(data: any): any;
         peer(): $hyoo_crowd_peer;
         world(): $hyoo_crowd_world;
@@ -1528,9 +1535,7 @@ declare namespace $ {
             [key: string]: string;
         };
         static value(key: string, next?: string | null): string | null;
-        static link(next: {
-            [key: string]: string;
-        }): string;
+        static link(next: Record<string, string | null>): string;
         static prolog: string;
         static separator: string;
         static make_link(next: {
@@ -1543,9 +1548,7 @@ declare namespace $ {
         constructor(prefix?: string);
         value(key: string, next?: string): string | null;
         sub(postfix: string): $mol_state_arg;
-        link(next: {
-            [key: string]: string;
-        }): string;
+        link(next: Record<string, string | null>): string;
     }
 }
 
@@ -1623,7 +1626,7 @@ declare namespace $ {
 
 declare namespace $.$$ {
     class $mol_svg extends $.$mol_svg {
-        computed_style(): CSSStyleDeclaration;
+        computed_style(): Record<string, any>;
         font_size(): number;
         font_family(): any;
     }
@@ -2066,45 +2069,9 @@ declare namespace $ {
 }
 
 declare namespace $ {
-    type $mol_type_equals<A, B> = (<X>() => X extends A ? 1 : 2) extends (<X>() => X extends B ? 1 : 2) ? unknown : never;
-}
-
-declare namespace $ {
-    type $mol_type_merge<Intersection> = Intersection extends (...a: any[]) => any ? Intersection : Intersection extends new (...a: any[]) => any ? Intersection : Intersection extends object ? $mol_type_merge_object<Intersection> extends Intersection ? unknown extends $mol_type_equals<$mol_type_merge_object<Intersection>, Intersection> ? Intersection : {
-        [Key in keyof Intersection]: $mol_type_merge<Intersection[Key]>;
-    } : Intersection : Intersection;
-    type $mol_type_merge_object<Intersection> = {
-        [Key in keyof Intersection]: Intersection[Key];
-    };
-}
-
-declare namespace $ {
-    type $mol_type_partial_undefined<Val> = $mol_type_merge<Partial<Val> & Pick<Val, {
-        [Field in keyof Val]: undefined extends Val[Field] ? never : Field;
-    }[keyof Val]>>;
-}
-
-declare namespace $ {
-    function $mol_data_record<Sub extends Record<string, $mol_data_value>>(sub: Sub): ((val: $mol_type_merge<Partial<{ [key in keyof Sub]: Parameters<Sub[key]>[0]; }> & Pick<{ [key in keyof Sub]: Parameters<Sub[key]>[0]; }, ({ [key in keyof Sub]: Parameters<Sub[key]>[0]; } extends infer T ? { [Field in keyof T]: undefined extends { [key in keyof Sub]: Parameters<Sub[key]>[0]; }[Field] ? never : Field; } : never)[keyof Sub]>>) => Readonly<$mol_type_merge<Partial<{ [key_1 in keyof Sub]: ReturnType<Sub[key_1]>; }> & Pick<{ [key_1 in keyof Sub]: ReturnType<Sub[key_1]>; }, ({ [key_1 in keyof Sub]: ReturnType<Sub[key_1]>; } extends infer T_1 ? { [Field_1 in keyof T_1]: undefined extends { [key_1 in keyof Sub]: ReturnType<Sub[key_1]>; }[Field_1] ? never : Field_1; } : never)[keyof Sub]>>>) & {
-        config: Sub;
-        Value: Readonly<$mol_type_merge<Partial<{ [key_1 in keyof Sub]: ReturnType<Sub[key_1]>; }> & Pick<{ [key_1 in keyof Sub]: ReturnType<Sub[key_1]>; }, ({ [key_1 in keyof Sub]: ReturnType<Sub[key_1]>; } extends infer T_2 ? { [Field_1 in keyof T_2]: undefined extends { [key_1 in keyof Sub]: ReturnType<Sub[key_1]>; }[Field_1] ? never : Field_1; } : never)[keyof Sub]>>>;
-    };
-}
-
-declare namespace $ {
-    function $mol_data_array<Sub extends $mol_data_value>(sub: Sub): ((val: readonly Parameters<Sub>[0][]) => readonly ReturnType<Sub>[]) & {
-        config: Sub;
-        Value: readonly ReturnType<Sub>[];
-    };
-}
-
-declare namespace $ {
-    let $mol_data_string: (val: string) => string;
-}
-
-declare namespace $ {
-    function $mol_huggingface_run(this: $, space: string, method: string | number, ...data: readonly any[]): readonly string[];
-    function $mol_huggingface_async(space: string, method: number, ...data: readonly any[]): Promise<[string]> & {
+    function $mol_huggingface_run(this: $, space: string, method: string | number, ...data: readonly any[]): readonly any[];
+    function $mol_huggingface_rest(space: string, method: string, ...data: readonly any[]): readonly any[];
+    function $mol_huggingface_ws(space: string, fn_index: number, ...data: readonly any[]): Promise<readonly any[]> & {
         destructor: () => void;
     };
 }
@@ -2122,7 +2089,7 @@ declare namespace $ {
         static lang(next?: string): string;
         static source(lang: string): any;
         static texts(lang: string, next?: $mol_locale_dict): $mol_locale_dict;
-        static text(key: string): {} | null;
+        static text(key: string): string;
         static warn(key: string): null;
     }
 }
@@ -2136,7 +2103,7 @@ declare namespace $ {
 declare namespace $ {
     class $mol_lights_toggle extends $mol_check_icon {
         Icon(): $mol_icon_brightness_6;
-        hint(): {} | null;
+        hint(): string;
         checked(val?: any): boolean;
         Lights_icon(): $mol_icon_brightness_6;
         lights(val?: any): boolean;
@@ -2190,6 +2157,19 @@ declare namespace $ {
         parts(): readonly $mol_view_content[];
         string(id: any): string;
     }
+}
+
+declare namespace $ {
+    type $mol_type_equals<A, B> = (<X>() => X extends A ? 1 : 2) extends (<X>() => X extends B ? 1 : 2) ? unknown : never;
+}
+
+declare namespace $ {
+    type $mol_type_merge<Intersection> = Intersection extends (...a: any[]) => any ? Intersection : Intersection extends new (...a: any[]) => any ? Intersection : Intersection extends object ? $mol_type_merge_object<Intersection> extends Intersection ? unknown extends $mol_type_equals<$mol_type_merge_object<Intersection>, Intersection> ? Intersection : {
+        [Key in keyof Intersection]: $mol_type_merge<Intersection[Key]>;
+    } : Intersection : Intersection;
+    type $mol_type_merge_object<Intersection> = {
+        [Key in keyof Intersection]: Intersection[Key];
+    };
 }
 
 declare namespace $ {
@@ -2484,7 +2464,7 @@ declare namespace $ {
 declare namespace $ {
     type $mol_blob = Blob;
     let $mol_blob: {
-        new (blobParts?: BlobPart[] | undefined, options?: BlobPropertyBag | undefined): Blob;
+        new (blobParts?: readonly BlobPart[], options?: BlobPropertyBag): Blob;
         prototype: Blob;
     };
 }
@@ -2889,7 +2869,6 @@ declare namespace $ {
 
 declare namespace $ {
     class $habr_notes extends $mol_page {
-        title(): string;
         plugins(): readonly any[];
         yard(): $hyoo_sync_client;
         tools(): readonly any[];

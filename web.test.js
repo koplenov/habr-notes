@@ -2700,170 +2700,6 @@ var $;
 //mol/charset/encode/encode.test.ts
 ;
 "use strict";
-//mol/type/merge/merge.test.ts
-;
-"use strict";
-//mol/type/partial/undefined/undefined.test.ts
-;
-"use strict";
-var $;
-(function ($) {
-    $mol_test({
-        'config by value'() {
-            const N = $mol_data_setup((a) => a, 5);
-            $mol_assert_equal(N.config, 5);
-        },
-    });
-})($ || ($ = {}));
-//mol/data/setup/setup.test.ts
-;
-"use strict";
-var $;
-(function ($) {
-    $mol_test({
-        'equal paths'() {
-            const diff = $mol_diff_path([1, 2, 3, 4], [1, 2, 3, 4], [1, 2, 3, 4]);
-            $mol_assert_like(diff, {
-                prefix: [1, 2, 3, 4],
-                suffix: [[], [], []],
-            });
-        },
-        'different suffix'() {
-            const diff = $mol_diff_path([1, 2, 3, 4], [1, 2, 3, 5], [1, 2, 5, 4]);
-            $mol_assert_like(diff, {
-                prefix: [1, 2],
-                suffix: [[3, 4], [3, 5], [5, 4]],
-            });
-        },
-        'one contains other'() {
-            const diff = $mol_diff_path([1, 2, 3, 4], [1, 2], [1, 2, 3]);
-            $mol_assert_like(diff, {
-                prefix: [1, 2],
-                suffix: [[3, 4], [], [3]],
-            });
-        },
-        'fully different'() {
-            const diff = $mol_diff_path([1, 2], [3, 4], [5, 6]);
-            $mol_assert_like(diff, {
-                prefix: [],
-                suffix: [[1, 2], [3, 4], [5, 6]],
-            });
-        },
-    });
-})($ || ($ = {}));
-//mol/diff/path/path.test.ts
-;
-"use strict";
-var $;
-(function ($) {
-    $.$mol_data_number = (val) => {
-        if (typeof val === 'number')
-            return val;
-        return $mol_fail(new $mol_data_error(`${val} is not a number`));
-    };
-})($ || ($ = {}));
-//mol/data/number/number.ts
-;
-"use strict";
-var $;
-(function ($) {
-    $mol_test({
-        'Is number'() {
-            $mol_data_number(0);
-        },
-        'Is not number'() {
-            $mol_assert_fail(() => {
-                $mol_data_number('x');
-            }, 'x is not a number');
-        },
-        'Is object number'() {
-            $mol_assert_fail(() => {
-                $mol_data_number(new Number(''));
-            }, '0 is not a number');
-        },
-    });
-})($ || ($ = {}));
-//mol/data/number/number.test.ts
-;
-"use strict";
-var $;
-(function ($) {
-    $mol_test({
-        'Is string'() {
-            $mol_data_string('');
-        },
-        'Is not string'() {
-            $mol_assert_fail(() => {
-                $mol_data_string(0);
-            }, '0 is not a string');
-        },
-        'Is object string'() {
-            $mol_assert_fail(() => {
-                $mol_data_string(new String('x'));
-            }, 'x is not a string');
-        },
-    });
-})($ || ($ = {}));
-//mol/data/string/string.test.ts
-;
-"use strict";
-var $;
-(function ($) {
-    $mol_test({
-        'Fit to record'() {
-            const User = $mol_data_record({ age: $mol_data_number });
-            User({ age: 0 });
-        },
-        'Extends record'() {
-            const User = $mol_data_record({ age: $mol_data_number });
-            User({ age: 0, name: 'Jin' });
-        },
-        'Shrinks record'() {
-            $mol_assert_fail(() => {
-                const User = $mol_data_record({ age: $mol_data_number, name: $mol_data_string });
-                User({ age: 0 });
-            }, '["name"] undefined is not a string');
-        },
-        'Shrinks deep record'() {
-            $mol_assert_fail(() => {
-                const User = $mol_data_record({ wife: $mol_data_record({ age: $mol_data_number }) });
-                User({ wife: {} });
-            }, '["wife"] ["age"] undefined is not a number');
-        },
-    });
-})($ || ($ = {}));
-//mol/data/record/record.test.ts
-;
-"use strict";
-var $;
-(function ($) {
-    $mol_test({
-        'Is empty array'() {
-            $mol_data_array($mol_data_number)([]);
-        },
-        'Is array'() {
-            $mol_data_array($mol_data_number)([1, 2]);
-        },
-        'Is not array'() {
-            $mol_assert_fail(() => {
-                $mol_data_array($mol_data_number)({ [0]: 1, length: 1, map: () => { } });
-            }, '[object Object] is not an array');
-        },
-        'Has wrong item'() {
-            $mol_assert_fail(() => {
-                $mol_data_array($mol_data_number)([1, '1']);
-            }, '[1] 1 is not a number');
-        },
-        'Has wrong deep item'() {
-            $mol_assert_fail(() => {
-                $mol_data_array($mol_data_array($mol_data_number))([[], [0, 0, false]]);
-            }, '[1] [2] false is not a number');
-        },
-    });
-})($ || ($ = {}));
-//mol/data/array/array.test.ts
-;
-"use strict";
 var $;
 (function ($_1) {
     $mol_test_mocks.push($ => {
@@ -2997,8 +2833,8 @@ var $;
         for (let def of $mol_view_tree_classes(tree).sub) {
             if (!/^\$\w+$/.test(def.type))
                 throw def.error('Wrong component name');
-            var parent = def.sub[0];
-            var members = {};
+            const parent = def.sub[0];
+            const members = {};
             for (let param of $mol_view_tree_class_props(def).sub) {
                 try {
                     var needSet = false;
@@ -3039,12 +2875,12 @@ var $;
                                         if (val)
                                             items.push(val.join(""));
                                     });
-                                    return [`[`, items.join(' , '), `]`, (item_type ? ` as readonly ( ${item_type} )[]` : ` as readonly any[]`)];
+                                    return [`[`, items.join(' , '), `]`, (item_type ? ` as ( ${item_type} )[]` : ` as any[]`)];
                                 case (value.type[0] === '$'):
                                     if (!definition)
                                         throw value.error('Objects should be bound');
                                     needCache = true;
-                                    var overs = [];
+                                    const overs = [];
                                     value.sub.forEach(over => {
                                         if (/^[-\/]?$/.test(over.type))
                                             return '';
@@ -3076,21 +2912,28 @@ var $;
                                     const object_args = value.select('/', '').sub.map(arg => getValue(arg)).join(' , ');
                                     return ['(( obj )=>{\n', ...overs, '\t\t\treturn obj\n\t\t})( new this.$.', SourceNode(value.row, value.col, fileName, value.type), '( ', object_args, ' ) )'];
                                 case (value.type === '*'):
-                                    var opts = [];
-                                    value.sub.forEach(opt => {
+                                    const opts = [];
+                                    for (const opt of value.sub) {
                                         if (opt.type === '-')
-                                            return '';
+                                            continue;
                                         if (opt.type === '^') {
                                             opts.push(`\t\t\t...super.${param.type}() ,\n`);
-                                            return;
+                                            continue;
                                         }
-                                        var key = /(.*?)(?:\?(\w+))?$/.exec(opt.type);
-                                        var ns = needSet;
-                                        var v = getValue(opt.sub[0]);
-                                        var arg = key[2] ? ` ( ${key[2]}? : any )=> ` : '';
-                                        opts.push(...['\t\t\t"', SourceNode(opt.row, opt.col, fileName, key[1] + '" : '), arg, ' ', ...(v || []), ' ,\n']);
+                                        const key = /(.*?)(?:\?(\w+))?$/.exec(opt.type);
+                                        const ns = needSet;
+                                        const v = getValue(opt.sub[0]);
+                                        const arg = key[2] ? ` ( ${key[2]}? : any )=> ` : '';
+                                        opts.push(...[
+                                            '\t\t\t"',
+                                            SourceNode(opt.row, opt.col, fileName, key[1] + '" : '),
+                                            arg,
+                                            ' ',
+                                            ...(v || []),
+                                            ' ,\n'
+                                        ]);
                                         needSet = ns;
-                                    });
+                                    }
                                     return ['({\n', opts.join(''), '\t\t})'];
                                 case (value.type === '<=>'):
                                     if (value.sub.length === 1) {
@@ -3137,7 +2980,7 @@ var $;
                                 ...val
                             ];
                         val = ['return ', ...val];
-                        var decl = ['\t', SourceNode(param.row, param.col, fileName, propName[1]), '(', args.join(','), ') {\n\t\t', ...val, '\n\t}\n\n'];
+                        let decl = ['\t', SourceNode(param.row, param.col, fileName, propName[1]), '(', args.join(','), ') {\n\t\t', ...val, '\n\t}\n\n'];
                         if (needCache) {
                             if (propName[2])
                                 decl = ['\t@ $', 'mol_mem_key\n', ...decl];
@@ -3169,43 +3012,49 @@ var $;
 var $;
 (function ($) {
     $mol_test({
-        async 'sizes'() {
-            const pair = await $$.$mol_crypto_auditor_pair();
-            const key_public = await pair.public.serial();
-            $mol_assert_equal(key_public.length, $mol_crypto_auditor_public.size);
-            const key_private = await pair.private.serial();
-            $mol_assert_equal(key_private.length, $mol_crypto_auditor_private.size);
-            const data = new Uint8Array([1, 2, 3]);
-            const sign = await pair.private.sign(data);
-            $mol_assert_equal(sign.byteLength, $mol_crypto_auditor_sign_size);
-        },
-        async 'verify self signed with auto generated key'() {
-            const auditor = await $$.$mol_crypto_auditor_pair();
-            const data = new Uint8Array([1, 2, 3]);
-            const sign = await auditor.private.sign(data);
-            $mol_assert_ok(await auditor.public.verify(data, sign));
-        },
-        async 'verify signed with exported auto generated key'() {
-            const pair = await $$.$mol_crypto_auditor_pair();
-            const data = new Uint8Array([1, 2, 3]);
-            const Alice = await $mol_crypto_auditor_private.from(await pair.private.serial());
-            const sign = await Alice.sign(data);
-            const Bob = await $mol_crypto_auditor_public.from(await pair.public.serial());
-            $mol_assert_ok(await Bob.verify(data, sign));
-        },
-        async 'take public key from private'() {
-            const pair = await $$.$mol_crypto_auditor_pair();
-            const data = new Uint8Array([1, 2, 3]);
-            const Alice = pair.private;
-            const sign = await Alice.sign(data);
-            const Bob = await pair.private.public();
-            const Carol = await $mol_crypto_auditor_public.from(await pair.private.serial());
-            $mol_assert_ok(await Bob.verify(data, sign));
-            $mol_assert_ok(await Carol.verify(data, sign));
+        'config by value'() {
+            const N = $mol_data_setup((a) => a, 5);
+            $mol_assert_equal(N.config, 5);
         },
     });
 })($ || ($ = {}));
-//mol/crypto/auditor/auditor.web.test.ts
+//mol/data/setup/setup.test.ts
+;
+"use strict";
+var $;
+(function ($) {
+    $mol_test({
+        'equal paths'() {
+            const diff = $mol_diff_path([1, 2, 3, 4], [1, 2, 3, 4], [1, 2, 3, 4]);
+            $mol_assert_like(diff, {
+                prefix: [1, 2, 3, 4],
+                suffix: [[], [], []],
+            });
+        },
+        'different suffix'() {
+            const diff = $mol_diff_path([1, 2, 3, 4], [1, 2, 3, 5], [1, 2, 5, 4]);
+            $mol_assert_like(diff, {
+                prefix: [1, 2],
+                suffix: [[3, 4], [3, 5], [5, 4]],
+            });
+        },
+        'one contains other'() {
+            const diff = $mol_diff_path([1, 2, 3, 4], [1, 2], [1, 2, 3]);
+            $mol_assert_like(diff, {
+                prefix: [1, 2],
+                suffix: [[3, 4], [], [3]],
+            });
+        },
+        'fully different'() {
+            const diff = $mol_diff_path([1, 2], [3, 4], [5, 6]);
+            $mol_assert_like(diff, {
+                prefix: [],
+                suffix: [[1, 2], [3, 4], [5, 6]],
+            });
+        },
+    });
+})($ || ($ = {}));
+//mol/diff/path/path.test.ts
 ;
 "use strict";
 var $;
@@ -3276,6 +3125,48 @@ var $;
     });
 })($ || ($ = {}));
 //mol/data/enum/enum.test.ts
+;
+"use strict";
+var $;
+(function ($) {
+    $mol_test({
+        async 'sizes'() {
+            const pair = await $$.$mol_crypto_auditor_pair();
+            const key_public = await pair.public.serial();
+            $mol_assert_equal(key_public.length, $mol_crypto_auditor_public.size);
+            const key_private = await pair.private.serial();
+            $mol_assert_equal(key_private.length, $mol_crypto_auditor_private.size);
+            const data = new Uint8Array([1, 2, 3]);
+            const sign = await pair.private.sign(data);
+            $mol_assert_equal(sign.byteLength, $mol_crypto_auditor_sign_size);
+        },
+        async 'verify self signed with auto generated key'() {
+            const auditor = await $$.$mol_crypto_auditor_pair();
+            const data = new Uint8Array([1, 2, 3]);
+            const sign = await auditor.private.sign(data);
+            $mol_assert_ok(await auditor.public.verify(data, sign));
+        },
+        async 'verify signed with exported auto generated key'() {
+            const pair = await $$.$mol_crypto_auditor_pair();
+            const data = new Uint8Array([1, 2, 3]);
+            const Alice = await $mol_crypto_auditor_private.from(await pair.private.serial());
+            const sign = await Alice.sign(data);
+            const Bob = await $mol_crypto_auditor_public.from(await pair.public.serial());
+            $mol_assert_ok(await Bob.verify(data, sign));
+        },
+        async 'take public key from private'() {
+            const pair = await $$.$mol_crypto_auditor_pair();
+            const data = new Uint8Array([1, 2, 3]);
+            const Alice = pair.private;
+            const sign = await Alice.sign(data);
+            const Bob = await pair.private.public();
+            const Carol = await $mol_crypto_auditor_public.from(await pair.private.serial());
+            $mol_assert_ok(await Bob.verify(data, sign));
+            $mol_assert_ok(await Carol.verify(data, sign));
+        },
+    });
+})($ || ($ = {}));
+//mol/crypto/auditor/auditor.web.test.ts
 ;
 "use strict";
 var $;
@@ -3399,7 +3290,7 @@ var $;
             const clocks1 = [new $hyoo_crowd_clock, new $hyoo_crowd_clock];
             clocks1[$hyoo_crowd_unit_group.auth].see_peer('b_33', 1);
             clocks1[$hyoo_crowd_unit_group.data].see_peer('b_33', 2);
-            const bin = $hyoo_crowd_clock_bin.from('2_b', clocks1);
+            const bin = $hyoo_crowd_clock_bin.from('2_b', clocks1, 0);
             $mol_assert_like(bin.land(), '2_b');
             const clocks2 = [new $hyoo_crowd_clock, new $hyoo_crowd_clock];
             clocks2[$hyoo_crowd_unit_group.auth].see_bin(bin, $hyoo_crowd_unit_group.auth);
@@ -3593,6 +3484,9 @@ var $;
     });
 })($ || ($ = {}));
 //mol/reconcile/reconcile.test.tsx
+;
+"use strict";
+//mol/type/merge/merge.test.ts
 ;
 "use strict";
 //mol/type/intersect/intersect.test.ts
@@ -4892,7 +4786,7 @@ var $;
             land1.leave();
             const batch2 = await world1.delta_batch(land1);
             $mol_assert_like([...(await world2.apply(batch2)).forbid.values()], ['No auth key']);
-            $mol_assert_like(land2.chief.as($hyoo_crowd_reg).numb(), 234);
+            $mol_assert_like(land2.chief.as($hyoo_crowd_reg).numb(), 123);
         },
         async 'levels'() {
             const world1 = new $hyoo_crowd_world(await $hyoo_crowd_peer.generate());
